@@ -15,3 +15,23 @@
 cmake-build-debug/
 cmake-build-release/
 .idea/
+
+
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 编译输出
+math_program
+*.exe
+*.out
