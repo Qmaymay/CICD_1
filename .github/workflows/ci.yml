@@ -1,0 +1,78 @@
+name: C Project CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 安装GCC编译器
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc
+
+      - name: 编译C程序
+        run: gcc -o math_program main.c
+
+      - name: 运行C程序测试
+        run: |
+          # 直接运行程序看是否正常
+          ./math_program
+          # 验证输出
+          OUTPUT=$(./math_program)
+          echo "$OUTPUT"
+          if [[ "$OUTPUT" != *"Hello, CI/CD World!"* ]]; then
+            echo "程序输出不符合预期"
+            exit 1
+          fi
+
+      - name: 设置Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: 安装pytest
+        run: pip install pytest
+
+      - name: 复制测试文件
+        run: |
+          # 这里我们直接创建测试文件，实际项目中可以从另一个仓库获取
+          cat > test_ci.py << 'EOF'
+          import subprocess
+          import os
+          
+          def test_c_program():
+              # 编译C程序
+              result = subprocess.run(["gcc", "-o", "math_program", "main.c"], capture_output=True, text=True)
+              assert result.returncode == 0, f"编译失败: {result.stderr}"
+          
+              # 运行C程序
+              result = subprocess.run(["./math_program"], capture_output=True, text=True)
+              assert result.returncode == 0, f"程序运行失败: {result.stderr}"
+          
+              output = result.stdout
+              assert "Hello, CI/CD World!" in output
+              assert "3 + 4 = 7" in output
+              assert "3 * 4 = 12" in output
+          
+              print("所有测试通过！")
+              print("程序输出：")
+              print(output)
+          
+          if __name__ == "__main__":
+              test_c_program()
+          EOF
+
+      - name: 运行Python测试
+        run: python test_ci.py
+
+      - name: 运行pytest测试
+        run: pytest test_ci.py -v
