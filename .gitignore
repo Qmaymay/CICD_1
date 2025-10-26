@@ -1,0 +1,17 @@
+# 编译生成的文件
+*.exe
+*.out
+*.o
+*.so
+*.a
+*.dylib
+
+# 库文件
+*.lib
+*.dll
+
+# CLion项目文件
+.cmake/
+cmake-build-debug/
+cmake-build-release/
+.idea/
